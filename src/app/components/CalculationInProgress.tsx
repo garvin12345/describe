@@ -13,6 +13,8 @@ interface CalculationInProgressProps {
   createdDate: string;
   invoiceData?: InvoiceItem[];
   pharmacyName?: string;
+  onBack?: () => void;
+  onRestart?: () => void;
 }
 
 export default function CalculationInProgress({ 
@@ -33,7 +35,9 @@ export default function CalculationInProgress({
       amount: '$15.00'
     }
   ],
-  pharmacyName = 'CVS Pharmacy'
+  pharmacyName = 'CVS Pharmacy',
+  onBack,
+  onRestart
 }: CalculationInProgressProps) {
   return (
     <div className="container mx-auto px-4">
@@ -41,6 +45,34 @@ export default function CalculationInProgress({
         {/* Main Content */}
         <div className="w-[800px]">
           <div className="bg-white rounded-lg shadow-lg p-8 min-h-[800px]">
+            <div className="flex justify-between items-start mb-6">
+              <div>
+                {onBack && (
+                  <button
+                    onClick={onBack}
+                    className="flex items-center text-gray-600 hover:text-gray-900"
+                  >
+                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+                    </svg>
+                    Back
+                  </button>
+                )}
+              </div>
+              <div>
+                {onRestart && (
+                  <button
+                    onClick={onRestart}
+                    className="flex items-center text-teal-600 hover:text-teal-700 font-medium"
+                  >
+                    <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    Return to Dashboard
+                  </button>
+                )}
+              </div>
+            </div>
             <h1 className="text-4xl font-bold text-black mb-4">
               Expense #{expenseNumber}
             </h1>

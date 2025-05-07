@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Beginning from './Beginning';
 import InvoiceConfirmation from './InvoiceConfirmation';
 import CalculationInProgress from './CalculationInProgress';
@@ -25,7 +26,12 @@ const PREVIOUS_CLAIMS: PreviousClaim[] = [
   }
 ];
 
-export default function Recurring() {
+interface RecurringProps {
+  onRestart?: () => void;
+}
+
+export default function Recurring({ onRestart }: RecurringProps) {
+  const router = useRouter();
   const [showBeginning, setShowBeginning] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -33,7 +39,7 @@ export default function Recurring() {
   const [selectedDate, setSelectedDate] = useState('');
 
   if (showBeginning) {
-    return <Beginning />;
+    return <Beginning onRestart={onRestart} />;
   }
 
   if (showCalculation) {
@@ -51,12 +57,14 @@ export default function Recurring() {
             invoiceData={[
               {
                 dateOfService: selectedDate,
-                drugName: 'Office Visit',
+                drugName: 'Provider Fee for the Therapy Session',
                 ndc: '99213',
                 amount: '$150.00'
               }
             ]}
             pharmacyName="Dr. Leean"
+            onBack={() => setShowCalculation(false)}
+            onRestart={onRestart}
           />
         </div>
       </div>
@@ -70,6 +78,7 @@ export default function Recurring() {
           <InvoiceConfirmation 
             onConfirm={() => setShowCalculation(true)}
             onEdit={() => setShowConfirmation(false)}
+            onUpload={() => setShowBeginning(true)}
           />
         </div>
       </div>

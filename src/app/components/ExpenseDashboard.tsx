@@ -32,7 +32,7 @@ const EXPENSES: Expense[] = [
   {
     id: '2',
     expenseNumber: '537839',
-    title: 'Swipe medical Expense',
+    title: 'Swipe medical Expense (other options to create invoice)',
     date: 'Apr 7, 2025',
     status: 'NEW',
     totalBill: '$640.00',
@@ -50,17 +50,6 @@ const EXPENSES: Expense[] = [
     planPays: '$0.00',
     yourPortion: '$640.00',
     youOwe: '$0.00'
-  },
-  {
-    id: '5',
-    expenseNumber: '490684',
-    title: 'Non-swipe Expense',
-    date: 'Feb 2, 2025',
-    status: 'NEW',
-    totalBill: '$20.00',
-    planPays: '$0.00',
-    yourPortion: '$0.00',
-    youOwe: '$0.00'
   }
 ];
 
@@ -68,31 +57,43 @@ export default function ExpenseDashboard() {
   const [showRecurring, setShowRecurring] = useState(false);
   const [showBeginning, setShowBeginning] = useState(false);
   const [showClaimStart, setShowClaimStart] = useState(false);
+  const [claimStartType, setClaimStartType] = useState<'expense' | 'pharmacy'>('expense');
 
   if (showRecurring) {
-    return <Recurring />;
+    return <Recurring onRestart={() => {
+      setShowRecurring(false);
+      setShowClaimStart(false);
+      setShowBeginning(false);
+      setClaimStartType('expense');
+    }} />;
   }
 
   if (showBeginning) {
-    return <Beginning />;
+    return <Beginning onRestart={() => {
+      setShowRecurring(false);
+      setShowClaimStart(false);
+      setShowBeginning(false);
+      setClaimStartType('expense');
+    }} />;
   }
 
   if (showClaimStart) {
-    return <ClaimStart accessType="expense" />;
+    return <ClaimStart 
+      accessType={claimStartType} 
+      onBack={() => setShowClaimStart(false)}
+      onRestart={() => {
+        setShowRecurring(false);
+        setShowClaimStart(false);
+        setShowBeginning(false);
+        setClaimStartType('expense');
+      }} 
+    />;
   }
 
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
         <h1 className="text-4xl font-bold text-[#1a237e] mb-8">Expenses</h1>
-
-        {/* Add Invoice Button */}
-        <button className="mb-8 px-6 py-3 bg-[#4B7F88] text-white rounded-full flex items-center gap-2 hover:bg-opacity-90">
-          <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd" />
-          </svg>
-          Add invoice
-        </button>
 
         {/* Expenses Table */}
         <div className="overflow-x-auto">
@@ -115,13 +116,17 @@ export default function ExpenseDashboard() {
                   onClick={() => {
                     if (index === 0) {
                       setShowRecurring(true);
-                    } else if (expense.title === 'Swipe medical Expense') {
+                    } else if (expense.title === 'Swipe medical Expense (other options to create invoice)') {
                       setShowBeginning(true);
-                    } else if (expense.title === 'Pharmacy Expense' || expense.title === 'Non-swipe Expense') {
+                    } else if (expense.title === 'Pharmacy Expense') {
+                      setClaimStartType('pharmacy');
+                      setShowClaimStart(true);
+                    } else if (expense.title === 'Non-swipe Expense') {
+                      setClaimStartType('expense');
                       setShowClaimStart(true);
                     }
                   }}
-                  className={`border-t border-gray-200 ${(index === 0 || expense.title === 'Swipe medical Expense' || expense.title === 'Pharmacy Expense' || expense.title === 'Non-swipe Expense') ? 'cursor-pointer hover:bg-gray-50' : ''}`}
+                  className={`border-t border-gray-200 ${(index === 0 || expense.title === 'Swipe medical Expense (other options to create invoice)' || expense.title === 'Pharmacy Expense' || expense.title === 'Non-swipe Expense') ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                 >
                   <td className="py-4">
                     <div className="font-medium text-[#2196f3] hover:text-[#1976d2]">

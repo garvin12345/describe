@@ -21,18 +21,20 @@ interface MedicalVisitFormProps {
 
 export default function MedicalVisitForm({ onSubmit }: MedicalVisitFormProps) {
   const [description, setDescription] = useState('');
-  const [patientName, setPatientName] = useState('');
-  const [dateOfBirth, setDateOfBirth] = useState('');
   const [providerName, setProviderName] = useState('');
   const [providerAddress, setProviderAddress] = useState('');
   const [locationType, setLocationType] = useState('');
   const [reasonForNoInvoice, setReasonForNoInvoice] = useState('');
   const [providerSpecialty, setProviderSpecialty] = useState('');
   const [dateOfService, setDateOfService] = useState('');
-  const [chargeAmount, setChargeAmount] = useState('');
   const [isFirstVisit, setIsFirstVisit] = useState<boolean | null>(null);
   const [visitDuration, setVisitDuration] = useState('');
   const [characterCount, setCharacterCount] = useState(0);
+
+  // Hardcoded values
+  const patientName = 'Garvin Chen';
+  const dateOfBirth = '1980-05-29';
+  const chargeAmount = '350';
 
   const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const text = e.target.value;
@@ -89,30 +91,11 @@ export default function MedicalVisitForm({ onSubmit }: MedicalVisitFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-gray-900 font-medium mb-2">Patient Name</label>
-            <input
-              type="text"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="Full name"
-              value={patientName}
-              onChange={(e) => setPatientName(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-900 font-medium mb-2">Date of Birth</label>
-            <input
-              type="date"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-            />
-          </div>
-        </div>
-
         <div className="mb-4">
-          <label className="block text-gray-900 font-medium mb-1">Provider Name</label>
+          <label className="block text-gray-900 font-medium mb-1">
+            Provider Name
+            <span className="text-gray-500 text-sm ml-2">(optional)</span>
+          </label>
           <input
             type="text"
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -123,7 +106,10 @@ export default function MedicalVisitForm({ onSubmit }: MedicalVisitFormProps) {
         </div>
 
         <div className="mb-4">
-          <label className="block text-gray-900 font-medium mb-1">Provider Address</label>
+          <label className="block text-gray-900 font-medium mb-1">
+            Provider Address
+            <span className="text-gray-500 text-sm ml-2">(optional)</span>
+          </label>
           <input
             type="text"
             className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -212,31 +198,14 @@ export default function MedicalVisitForm({ onSubmit }: MedicalVisitFormProps) {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-4">
-          <div>
-            <label className="block text-gray-900 font-medium mb-2">Date of Service</label>
-            <input
-              type="date"
-              className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={dateOfService}
-              onChange={(e) => setDateOfService(e.target.value)}
-            />
-          </div>
-          <div>
-            <label className="block text-gray-900 font-medium mb-2">Charge Amount</label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500">$</span>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                className="w-full p-3 pl-7 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                placeholder="0.00"
-                value={chargeAmount}
-                onChange={(e) => setChargeAmount(e.target.value)}
-              />
-            </div>
-          </div>
+        <div className="mb-4">
+          <label className="block text-gray-900 font-medium mb-2">Date of Service</label>
+          <input
+            type="date"
+            className="w-full p-3 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+            value={dateOfService}
+            onChange={(e) => setDateOfService(e.target.value)}
+          />
         </div>
 
         <button
@@ -248,10 +217,7 @@ export default function MedicalVisitForm({ onSubmit }: MedicalVisitFormProps) {
               : 'bg-gray-200 text-gray-500 cursor-not-allowed'
           }`}
         >
-          Generate Invoice
-          <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
-          </svg>
+          Submit
         </button>
       </form>
     </div>

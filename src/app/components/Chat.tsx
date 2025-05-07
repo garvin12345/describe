@@ -21,7 +21,12 @@ const formatMessage = (text: string) => {
     ));
 };
 
-export default function Chat() {
+interface ChatProps {
+  onBack?: () => void;
+  onRestart?: () => void;
+}
+
+export default function Chat({ onBack, onRestart }: ChatProps) {
   const [showForm, setShowForm] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
   const [userInput, setUserInput] = useState('');
@@ -144,21 +149,60 @@ export default function Chat() {
   if (showInvoice) {
     return (
       <div className="bg-white">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 ml-4 mt-4"
+          >
+            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
         <Invoice 
           cptCode={confirmedCPTCode}
-          cptDescription={confirmedCPTCode === '99213' ? 'Office visit for established patient, moderate complexity' : 'Medical visit'}
+          cptDescription={confirmedCPTCode === '99213' ? 'Provider Fee for the Therapy Session' : 'Provider Fee for the Therapy Session'}
           memberDescription={memberDescription}
+          onReset={onBack}
+          onRestart={onRestart}
         />
       </div>
     );
   }
 
   if (showForm) {
-    return <MedicalVisitForm onSubmit={handleFormSubmit} />;
+    return (
+      <div>
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 ml-4 mt-4"
+          >
+            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+        <MedicalVisitForm onSubmit={handleFormSubmit} />
+      </div>
+    );
   }
 
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+      )}
       <div className="bg-white rounded-lg shadow-lg p-6">
         <div className="mb-4 space-y-6 min-h-[600px] overflow-y-auto">
           {messages.map((message, index) => (

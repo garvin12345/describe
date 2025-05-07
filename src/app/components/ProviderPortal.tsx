@@ -10,6 +10,11 @@ interface Provider {
   description: string;
 }
 
+interface ProviderPortalProps {
+  onBack?: () => void;
+  onRestart?: () => void;
+}
+
 const EXAMPLE_PROVIDERS: Provider[] = [
   {
     id: '1',
@@ -37,12 +42,12 @@ const EXAMPLE_PROVIDERS: Provider[] = [
   }
 ];
 
-export default function ProviderPortal() {
+export default function ProviderPortal({ onBack, onRestart }: ProviderPortalProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
 
   if (selectedProvider) {
-    return <ProviderLogin provider={selectedProvider} />;
+    return <ProviderLogin provider={selectedProvider} onBack={() => setSelectedProvider(null)} onRestart={onRestart} />;
   }
 
   const filteredProviders = EXAMPLE_PROVIDERS.filter(provider =>
@@ -54,7 +59,7 @@ export default function ProviderPortal() {
       <div className="max-w-2xl mx-auto">
         <div className="border rounded-lg shadow-lg p-8">
           <button
-            onClick={() => window.history.back()}
+            onClick={onBack}
             className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">

@@ -6,6 +6,8 @@ interface InvoiceProps {
   cptCode: string;
   cptDescription: string;
   memberDescription: string;
+  onReset?: () => void;
+  onRestart?: () => void;
 }
 
 const CPT_DESCRIPTIONS: Record<string, string> = {
@@ -22,12 +24,16 @@ const CPT_DESCRIPTIONS: Record<string, string> = {
   '87880': 'Strep A by immunoassay',
 };
 
-export default function Invoice({ cptCode, cptDescription, memberDescription }: InvoiceProps) {
+export default function Invoice({ cptCode, cptDescription, memberDescription, onReset, onRestart }: InvoiceProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [isAttested, setIsAttested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const currentDate = new Date();
-  const formattedDate = `${currentDate.getMonth() + 1}/${currentDate.getDate()}/${currentDate.getFullYear()}`;
+  const formattedDate = currentDate.toLocaleDateString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+  });
 
   useEffect(() => {
     // Pre-load html2pdf.js
@@ -95,115 +101,137 @@ export default function Invoice({ cptCode, cptDescription, memberDescription }: 
   };
 
   return (
-    <div ref={invoiceRef} className="rounded-lg shadow-lg p-6 max-w-3xl mx-auto" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>Invoice Preview</h2>
-        <p style={{ color: '#4B5563' }}>Review your generated invoice based on the information provided.</p>
-      </div>
-
-      <div className="flex items-center mb-6">
-        <div className="flex items-center">
-          <svg className="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="24" height="24" rx="4" fill="#1a237e"/>
-            <path d="M6 12h12M12 6v12" stroke="white" strokeWidth="2"/>
+    <div ref={invoiceRef} className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
+        <button
+          onClick={onReset}
+          className="flex items-center text-gray-600 hover:text-gray-900"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span className="text-xl" style={{ color: '#000000' }}>sidecar health</span>
+          Reset
+        </button>
+        <button
+          onClick={onRestart}
+          className="flex items-center text-teal-600 hover:text-teal-700 font-medium"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+          </svg>
+          Return to Dashboard
+        </button>
+      </div>
+      <div className="rounded-lg shadow-lg p-6 max-w-3xl mx-auto" style={{ color: '#000000', backgroundColor: '#FFFFFF' }}>
+        <div className="mb-8">
+          <h2 className="text-2xl font-bold mb-2" style={{ color: '#000000' }}>Invoice Preview</h2>
+          <p style={{ color: '#4B5563' }}>Review your generated invoice based on the information provided.</p>
         </div>
-      </div>
 
-      <p className="text-center mb-6" style={{ color: '#4B5563' }}>
-        This invoice was generated from member provided information.
-      </p>
+        <div className="flex items-center mb-6">
+          <div className="flex items-center">
+            <svg className="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect width="24" height="24" rx="4" fill="#1a237e"/>
+              <path d="M6 12h12M12 6v12" stroke="white" strokeWidth="2"/>
+            </svg>
+            <span className="text-xl" style={{ color: '#000000' }}>sidecar health</span>
+          </div>
+        </div>
 
-      <div className="mb-8" style={{ color: '#000000' }}>
-        <p>Patient Name: Garvin Chen</p>
-        <p>DOB: 05/29/1980</p>
-      </div>
+        <p className="text-center mb-6" style={{ color: '#4B5563' }}>
+          This invoice was generated from member provided information.
+        </p>
 
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>Services</h3>
-        <div className="overflow-x-auto">
-          <table className="w-full" style={{ color: '#000000' }}>
-            <thead>
-              <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                <th className="text-left py-2 px-4" style={{ color: '#000000' }}>Date</th>
-                <th className="text-left py-2 px-4" style={{ color: '#000000' }}>CPT Code</th>
-                <th className="text-left py-2 px-4" style={{ color: '#000000' }}>Description</th>
-                <th className="text-right py-2 px-4" style={{ color: '#000000' }}>Amount</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                <td className="py-2 px-4">{formattedDate}</td>
-                <td className="py-2 px-4">{cptCode}</td>
-                <td className="py-2 px-4">{CPT_DESCRIPTIONS[cptCode] || cptDescription}</td>
-                <td className="text-right py-2 px-4">--</td>
-              </tr>
-              {cptCode === '99213' && (
+        <div className="mb-8" style={{ color: '#000000' }}>
+          <p>Patient Name: Garvin Chen</p>
+          <p>DOB: 05/29/1980</p>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-4" style={{ color: '#000000' }}>Services</h3>
+          <div className="overflow-x-auto">
+            <table className="w-full" style={{ color: '#000000' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
+                  <th className="text-left py-2 px-4" style={{ color: '#000000' }}>Date</th>
+                  <th className="text-left py-2 px-4" style={{ color: '#000000' }}>CPT Code</th>
+                  <th className="text-left py-2 px-4" style={{ color: '#000000' }}>Description</th>
+                  <th className="text-right py-2 px-4" style={{ color: '#000000' }}>Amount</th>
+                </tr>
+              </thead>
+              <tbody>
                 <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
                   <td className="py-2 px-4">{formattedDate}</td>
-                  <td className="py-2 px-4">87880</td>
-                  <td className="py-2 px-4">{CPT_DESCRIPTIONS['87880']}</td>
+                  <td className="py-2 px-4">{cptCode}</td>
+                  <td className="py-2 px-4">{CPT_DESCRIPTIONS[cptCode] || cptDescription}</td>
                   <td className="text-right py-2 px-4">--</td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        <div className="text-right mt-4">
-          <p className="font-semibold" style={{ color: '#000000' }}>Swipe Amount: $250</p>
-        </div>
-      </div>
-
-      <div className="mb-8">
-        <h3 className="text-xl font-semibold mb-2" style={{ color: '#000000' }}>Member-provided Description:</h3>
-        <p style={{ color: '#4B5563' }}>{memberDescription}</p>
-      </div>
-
-      <div className="mb-8 flex items-start gap-2">
-        <input
-          type="checkbox"
-          id="attestation"
-          checked={isAttested}
-          onChange={(e) => setIsAttested(e.target.checked)}
-          className="mt-1"
-          style={{ accentColor: '#000000' }}
-        />
-        <label htmlFor="attestation" style={{ color: '#4B5563' }}>
-          <p className="mb-4">
-            I confirm that the information I've provided is true and accurate, to the best of my
-            knowledge. I understand that submitting false or deceptive information may be considered insurance fraud.
-          </p>
-          <p>
-            I also understand that by completing this form instead of submitting an itemized invoice from my provider, I
-            waive any earned benefit credit I would otherwise receive related to this expense should the calculated
-            benefit amount exceed the provider charge.
-          </p>
-        </label>
-      </div>
-
-      <div className="relative">
-        <button 
-          id="downloadButton"
-          onClick={handleDownload}
-          className="px-6 py-2 rounded-lg flex items-center gap-2 w-full justify-center"
-          style={{ 
-            backgroundColor: isAttested ? '#000000' : '#999999', 
-            color: '#FFFFFF',
-            cursor: isAttested ? 'pointer' : 'not-allowed'
-          }}
-          disabled={!isAttested || isLoading}
-        >
-          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
-          </svg>
-          Download Invoice {isLoading && '(Generating...)'}
-        </button>
-        {!isAttested && (
-          <div className="absolute -top-8 left-0 right-0 text-center text-sm" style={{ color: '#EF4444' }}>
-            Please check the attestation box above to enable download
+                {cptCode === '99213' && (
+                  <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
+                    <td className="py-2 px-4">{formattedDate}</td>
+                    <td className="py-2 px-4">87880</td>
+                    <td className="py-2 px-4">{CPT_DESCRIPTIONS['87880']}</td>
+                    <td className="text-right py-2 px-4">--</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-        )}
+          <div className="text-right mt-4">
+            <p className="font-semibold" style={{ color: '#000000' }}>Swipe Amount: $250</p>
+          </div>
+        </div>
+
+        <div className="mb-8">
+          <h3 className="text-xl font-semibold mb-2" style={{ color: '#000000' }}>Member-provided Description:</h3>
+          <p style={{ color: '#4B5563' }}>{memberDescription}</p>
+        </div>
+
+        <div className="mb-8 flex items-start gap-2">
+          <input
+            type="checkbox"
+            id="attestation"
+            checked={isAttested}
+            onChange={(e) => setIsAttested(e.target.checked)}
+            className="mt-1"
+            style={{ accentColor: '#000000' }}
+          />
+          <label htmlFor="attestation" style={{ color: '#4B5563' }}>
+            <p className="mb-4">
+              I confirm that the information I've provided is true and accurate, to the best of my
+              knowledge. I understand that submitting false or deceptive information may be considered insurance fraud.
+            </p>
+            <p>
+              I also understand that by completing this form instead of submitting an itemized invoice from my provider, I
+              waive any earned benefit credit I would otherwise receive related to this expense should the calculated
+              benefit amount exceed the provider charge.
+            </p>
+          </label>
+        </div>
+
+        <div className="relative">
+          <button 
+            id="downloadButton"
+            onClick={handleDownload}
+            className="px-6 py-2 rounded-lg flex items-center gap-2 w-full justify-center"
+            style={{ 
+              backgroundColor: isAttested ? '#000000' : '#999999', 
+              color: '#FFFFFF',
+              cursor: isAttested ? 'pointer' : 'not-allowed'
+            }}
+            disabled={!isAttested || isLoading}
+          >
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z" fill="currentColor"/>
+            </svg>
+            Download Invoice {isLoading && '(Generating...)'}
+          </button>
+          {!isAttested && (
+            <div className="absolute -top-8 left-0 right-0 text-center text-sm" style={{ color: '#EF4444' }}>
+              Please check the attestation box above to enable download
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

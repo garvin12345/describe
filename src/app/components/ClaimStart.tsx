@@ -1,21 +1,35 @@
 'use client';
 
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Chat from './Chat';
 import InvoiceConfirmation from './InvoiceConfirmation';
 import CalculationInProgress from './CalculationInProgress';
+import Image from 'next/image';
+import EditableInvoiceTable from './EditableInvoiceTable';
 
 interface ClaimStartProps {
   accessType?: string;
+  onBack?: () => void;
+  onRestart?: () => void;
 }
 
-export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) {
+export default function ClaimStart({ accessType = 'default', onBack, onRestart }: ClaimStartProps) {
   const [showChat, setShowChat] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showCalculation, setShowCalculation] = useState(false);
-  const [careType, setCareType] = useState('medical');
+  const [showInvoiceTable, setShowInvoiceTable] = useState(false);
+  const [careType, setCareType] = useState(accessType === 'pharmacy' ? 'pharmacy' : 'medical');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [confirmedCPTCode, setConfirmedCPTCode] = useState('');
+
+  // Update careType when accessType changes
+  useEffect(() => {
+    if (accessType === 'pharmacy') {
+      setCareType('pharmacy');
+    }
+  }, [accessType]);
 
   const handleBrowseClick = () => {
     fileInputRef.current?.click();
@@ -28,8 +42,96 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
     }
   };
 
+  const handleSave = (data: any) => {
+    // Handle saving the data
+  };
+
+  const renderRequiredInfo = () => {
+    if (accessType === 'pharmacy') {
+      return (
+        <div className="bg-gray-50 rounded-lg p-6 mb-4">
+          <h3 className="font-medium mb-4 text-black text-sm">Example Prescription Receipt:</h3>
+          <div className="mb-4">
+            <img
+              src="https://i.imgur.com/vXCaXZj.png"
+              alt="Example CVS prescription receipt"
+              className="rounded-lg max-w-full h-auto mx-auto"
+            />
+          </div>
+          <div className="flex items-center gap-2 text-red-500 text-sm">
+            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+            </svg>
+            Multiple invoices in a single photo
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="bg-gray-50 rounded-lg p-6 mb-4">
+        <h3 className="font-medium mb-4 text-black text-sm">Provide the required info:</h3>
+        <ul className="space-y-2 mb-3 text-sm">
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Patient name
+          </li>
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Provider name or National Provider ID (NPI)
+          </li>
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Date(s) of service
+          </li>
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Procedure codes (CPT, HCPCS, ASC, APC or DRG) for the services
+          </li>
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Diagnosis codes (ICD-10) for the services
+          </li>
+          <li className="flex items-center gap-2 text-black">
+            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
+            </svg>
+            Amount charged for each service
+          </li>
+        </ul>
+
+        <div className="mb-4">
+          <h3 className="font-medium mb-2 text-black text-sm">Do not upload:</h3>
+          <div className="flex items-center gap-2 text-red-500 text-sm">
+            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
+            </svg>
+            Multiple invoices in a single photo
+          </div>
+        </div>
+
+        <button className="text-teal-500 hover:text-teal-600 flex items-center gap-2 text-sm">
+          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"/>
+          </svg>
+          See example invoices
+        </button>
+      </div>
+    );
+  };
+
   if (showChat) {
-    return <Chat />;
+    return <Chat onBack={() => setShowChat(false)} onRestart={onRestart} />;
   }
 
   if (showCalculation) {
@@ -53,6 +155,8 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
               }
             ]}
             pharmacyName="Pharmacy"
+            onBack={() => setShowCalculation(false)}
+            onRestart={onRestart}
           />
         </div>
       </div>
@@ -66,7 +170,36 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
           <InvoiceConfirmation 
             onConfirm={() => setShowCalculation(true)} 
             onEdit={() => setShowConfirmation(false)}
+            onBack={() => setShowConfirmation(false)}
+            isPharmacy={accessType === 'pharmacy'}
           />
+        </div>
+      </div>
+    );
+  }
+
+  if (showInvoiceTable) {
+    return (
+      <div className="container mx-auto px-4 min-h-screen py-4 bg-white">
+        <div className="w-[800px] mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <h2 className="text-xl font-semibold mb-6 text-black">
+              Enter Visit Information
+            </h2>
+            <EditableInvoiceTable
+              initialData={[
+                {
+                  dateOfService: new Date().toISOString().split('T')[0],
+                  drugName: accessType === 'pharmacy' ? 'Lipitor 10mg tablets' : 'Provider Fee for the Therapy Session',
+                  ndc: accessType === 'pharmacy' ? '0071-0155-23' : '',
+                  amount: ''
+                }
+              ]}
+              onSave={handleSave}
+              onCancel={() => setShowInvoiceTable(false)}
+              isPharmacy={accessType === 'pharmacy'}
+            />
+          </div>
         </div>
       </div>
     );
@@ -77,8 +210,19 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
       <div className="flex gap-8">
         {/* Main Content */}
         <div className="w-[800px]">
-          <div className="border rounded-lg shadow-lg p-8 min-h-[800px]">
-            <h1 className="text-2xl font-bold mb-8 text-black">Submit claim documents by Nov 20, 2025</h1>
+          <div className="relative border rounded-lg shadow-lg p-8 min-h-[800px]">
+            {/* Back Button */}
+            <button
+              onClick={onBack}
+              className="absolute left-4 top-4 text-gray-600 hover:text-gray-900 flex items-center gap-2"
+            >
+              <svg className="w-5 h-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L4.414 9H17a1 1 0 110 2H4.414l5.293 5.293a1 1 0 010 1.414z" clipRule="evenodd" />
+              </svg>
+              Back
+            </button>
+
+            <h1 className="text-2xl font-bold mb-8 text-black mt-8">Submit claim documents by Nov 20, 2025</h1>
             
             <div className="mb-8">
               <h2 className="text-lg mb-4 text-black">What type of care is this for?</h2>
@@ -202,17 +346,19 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
               </div>
             </div>
 
-            <div className="flex justify-center">
-              <button
-                onClick={() => setShowChat(true)}
-                className="bg-gray-200 text-black px-6 py-2 rounded-lg hover:bg-gray-300 flex items-center justify-center gap-2"
-              >
-                Or create claim without invoice
-                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
-                </svg>
-              </button>
-            </div>
+            {accessType !== 'pharmacy' && (
+              <div className="flex justify-center">
+                <button
+                  onClick={() => setShowInvoiceTable(true)}
+                  className="bg-gray-200 text-black px-6 py-2 rounded-lg hover:bg-gray-300 flex items-center justify-center gap-2"
+                >
+                  Or create claim without invoice
+                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -233,12 +379,14 @@ export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) 
                 <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            <button
-              onClick={() => setShowChat(true)}
-              className="w-full text-teal-600 hover:text-teal-700 text-center mt-4"
-            >
-              Don't have an invoice? Create claim manually
-            </button>
+            {accessType !== 'pharmacy' && (
+              <button
+                onClick={() => setShowInvoiceTable(true)}
+                className="w-full text-teal-600 hover:text-teal-700 text-center mt-4"
+              >
+                Don't have an invoice? Create claim manually
+              </button>
+            )}
           </div>
 
           <div className="bg-white rounded-lg shadow-lg p-6">

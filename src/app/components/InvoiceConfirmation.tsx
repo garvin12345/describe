@@ -4,21 +4,31 @@ import EditableInvoiceTable from './EditableInvoiceTable';
 interface InvoiceConfirmationProps {
   onConfirm: () => void;
   onEdit: () => void;
+  onBack?: () => void;
+  isPharmacy?: boolean;
+  onUpload?: () => void;
 }
 
 const initialData = [
   {
     dateOfService: '2024-03-15',
-    drugName: 'Office Visit',
+    drugName: 'Provider Fee for the Therapy Session',
     ndc: '99213',
     amount: '$150.00'
   }
 ];
 
-export default function InvoiceConfirmation({ onConfirm, onEdit }: InvoiceConfirmationProps) {
+export default function InvoiceConfirmation({ onConfirm, onEdit, onBack, isPharmacy = false, onUpload }: InvoiceConfirmationProps) {
   const [isEditing, setIsEditing] = useState(false);
-  const [invoiceData, setInvoiceData] = useState(initialData);
-  const [providerName, setProviderName] = useState('Dr. Leean');
+  const [invoiceData, setInvoiceData] = useState([
+    {
+      dateOfService: new Date().toISOString().split('T')[0],
+      drugName: isPharmacy ? 'Lipitor 10mg tablets' : 'Provider Fee for the Therapy Session',
+      ndc: isPharmacy ? '0071-0155-23' : '99213',
+      amount: '$350.00'
+    }
+  ]);
+  const [providerName, setProviderName] = useState(isPharmacy ? 'CVS Pharmacy' : 'Dr. Leean');
 
   const handleSave = (newData: typeof initialData, newProviderName: string) => {
     setInvoiceData(newData);
@@ -29,6 +39,17 @@ export default function InvoiceConfirmation({ onConfirm, onEdit }: InvoiceConfir
   if (isEditing) {
     return (
       <div className="bg-white rounded-lg shadow-lg p-8 min-h-[800px]">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+          >
+            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
         <h2 className="text-xl font-semibold mb-6 text-black">
           Edit Visit Information
         </h2>
@@ -37,29 +58,47 @@ export default function InvoiceConfirmation({ onConfirm, onEdit }: InvoiceConfir
           initialData={invoiceData}
           onSave={handleSave}
           onCancel={() => setIsEditing(false)}
+          isPharmacy={isPharmacy}
         />
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-lg p-8 min-h-[800px]">
-      <h2 className="text-xl font-semibold mb-6 text-black">
-        We've found your previous visit information:
+    <div className="bg-white rounded-lg shadow-lg p-8">
+      {onBack && (
+        <button
+          onClick={onBack}
+          className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+        >
+          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back
+        </button>
+      )}
+
+      <h2 className="text-2xl font-semibold mb-6 text-black">
+        Confirm Information
       </h2>
 
       <div className="mb-8 overflow-hidden rounded-lg border border-gray-200">
         <table className="w-full">
           <thead>
             <tr className="border-b border-gray-200">
-              <th colSpan={4} className="px-6 py-4 text-left text-lg font-medium text-gray-900 bg-white">
-                {providerName}
+              <th colSpan={4} className="px-6 py-4 text-left bg-white">
+                <div className="text-lg font-medium text-gray-900 mb-2">Provider Info</div>
+                <div className="text-sm text-gray-600">
+                  <div>{providerName}</div>
+                  <div>NPI 123456789</div>
+                  <div>Mental Health</div>
+                </div>
               </th>
             </tr>
             <tr className="bg-gray-50">
               <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Date of Service</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Service</th>
-              <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">CPT Code</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{isPharmacy ? 'Drug Name' : 'Service'}</th>
+              <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{isPharmacy ? 'NDC' : 'CPT Code'}</th>
               <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Amount</th>
             </tr>
           </thead>
@@ -99,10 +138,10 @@ export default function InvoiceConfirmation({ onConfirm, onEdit }: InvoiceConfir
           Yes, this is correct. Please Submit
         </button>
         <button
-          onClick={() => setIsEditing(true)}
+          onClick={onUpload}
           className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
         >
-          No, I'd like to make changes
+          Different treatment, I'd like to upload instead
         </button>
       </div>
     </div>

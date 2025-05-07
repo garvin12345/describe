@@ -11,11 +11,12 @@ interface EditableInvoiceTableProps {
   initialData: InvoiceItem[];
   onSave: (data: InvoiceItem[], providerName: string) => void;
   onCancel: () => void;
+  isPharmacy?: boolean;
 }
 
-export default function EditableInvoiceTable({ initialData, onSave, onCancel }: EditableInvoiceTableProps) {
+export default function EditableInvoiceTable({ initialData, onSave, onCancel, isPharmacy = false }: EditableInvoiceTableProps) {
   const [items, setItems] = useState<InvoiceItem[]>(initialData);
-  const [providerName, setProviderName] = useState('Dr. Leean');
+  const [providerName, setProviderName] = useState(isPharmacy ? 'CVS Pharmacy' : 'Dr. Leean');
 
   const handleInputChange = (index: number, field: keyof InvoiceItem, value: string) => {
     const newItems = [...items];
@@ -41,14 +42,14 @@ export default function EditableInvoiceTable({ initialData, onSave, onCancel }: 
                 value={providerName}
                 onChange={(e) => setProviderName(e.target.value)}
                 className="w-full text-lg font-medium text-gray-900 bg-transparent border-b border-gray-300 focus:border-teal-500 focus:outline-none"
-                placeholder="Provider Name"
+                placeholder={isPharmacy ? 'Pharmacy Name' : 'Provider Name'}
               />
             </th>
           </tr>
           <tr className="bg-gray-50">
             <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Date of Service</th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Service</th>
-            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">CPT Code</th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{isPharmacy ? 'Drug Name' : 'Service'}</th>
+            <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{isPharmacy ? 'NDC' : 'CPT Code'}</th>
             <th className="px-6 py-4 text-right text-sm font-medium text-gray-500">Amount</th>
           </tr>
         </thead>
@@ -69,7 +70,7 @@ export default function EditableInvoiceTable({ initialData, onSave, onCancel }: 
                   value={item.drugName}
                   onChange={(e) => handleInputChange(index, 'drugName', e.target.value)}
                   className="w-full text-sm text-gray-900 bg-transparent border-b border-gray-300 focus:border-teal-500 focus:outline-none"
-                  placeholder="e.g., Office Visit"
+                  placeholder={isPharmacy ? 'e.g., Lipitor 10mg tablets' : 'e.g., Office Visit'}
                 />
               </td>
               <td className="px-6 py-4">
@@ -78,7 +79,7 @@ export default function EditableInvoiceTable({ initialData, onSave, onCancel }: 
                   value={item.ndc}
                   onChange={(e) => handleInputChange(index, 'ndc', e.target.value)}
                   className="w-full text-sm text-gray-900 bg-transparent border-b border-gray-300 focus:border-teal-500 focus:outline-none"
-                  placeholder="e.g., 99213"
+                  placeholder={isPharmacy ? 'e.g., 0071-0155-23' : 'e.g., 99213'}
                 />
               </td>
               <td className="px-6 py-4">

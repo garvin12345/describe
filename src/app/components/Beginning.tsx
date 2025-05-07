@@ -6,7 +6,11 @@ import Chat from './Chat';
 import VisitNotesUpload from './VisitNotesUpload';
 import ProviderPortal from './ProviderPortal';
 
-export default function Beginning() {
+interface BeginningProps {
+  onRestart?: () => void;
+}
+
+export default function Beginning({ onRestart }: BeginningProps) {
   const [showClaimStart, setShowClaimStart] = useState(false);
   const [showOtherOptions, setShowOtherOptions] = useState(false);
   const [showChat, setShowChat] = useState(false);
@@ -14,19 +18,19 @@ export default function Beginning() {
   const [showProviderPortal, setShowProviderPortal] = useState(false);
 
   if (showClaimStart) {
-    return <ClaimStart />;
+    return <ClaimStart onBack={() => setShowClaimStart(false)} onRestart={onRestart} />;
   }
 
   if (showChat) {
-    return <Chat />;
+    return <Chat onBack={() => setShowChat(false)} onRestart={onRestart} />;
   }
 
   if (showVisitNotes) {
-    return <VisitNotesUpload />;
+    return <VisitNotesUpload onBack={() => setShowVisitNotes(false)} onRestart={onRestart} />;
   }
 
   if (showProviderPortal) {
-    return <ProviderPortal />;
+    return <ProviderPortal onBack={() => setShowProviderPortal(false)} onRestart={onRestart} />;
   }
 
   return (
