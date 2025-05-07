@@ -5,7 +5,11 @@ import Chat from './Chat';
 import InvoiceConfirmation from './InvoiceConfirmation';
 import CalculationInProgress from './CalculationInProgress';
 
-export default function ClaimStart() {
+interface ClaimStartProps {
+  accessType?: string;
+}
+
+export default function ClaimStart({ accessType = 'default' }: ClaimStartProps) {
   const [showChat, setShowChat] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showCalculation, setShowCalculation] = useState(false);
