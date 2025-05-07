@@ -5,11 +5,7 @@ import Chat from './Chat';
 import InvoiceConfirmation from './InvoiceConfirmation';
 import CalculationInProgress from './CalculationInProgress';
 
-interface ClaimStartProps {
-  accessType?: 'expense' | 'direct';
-}
-
-export default function ClaimStart({ accessType = 'direct' }: ClaimStartProps) {
+export default function ClaimStart() {
   const [showChat, setShowChat] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [showCalculation, setShowCalculation] = useState(false);
@@ -202,19 +198,17 @@ export default function ClaimStart({ accessType = 'direct' }: ClaimStartProps) {
               </div>
             </div>
 
-            {accessType === 'direct' && (
-              <div className="flex justify-center">
-                <button
-                  onClick={() => setShowChat(true)}
-                  className="bg-gray-200 text-black px-6 py-2 rounded-lg hover:bg-gray-300 flex items-center justify-center gap-2"
-                >
-                  Or create claim without invoice
-                  <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
-                  </svg>
-                </button>
-              </div>
-            )}
+            <div className="flex justify-center">
+              <button
+                onClick={() => setShowChat(true)}
+                className="bg-gray-200 text-black px-6 py-2 rounded-lg hover:bg-gray-300 flex items-center justify-center gap-2"
+              >
+                Or create claim without invoice
+                <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -235,14 +229,12 @@ export default function ClaimStart({ accessType = 'direct' }: ClaimStartProps) {
                 <path d="M5 12h14M12 5l7 7-7 7" strokeLinecap="round" strokeLinejoin="round"/>
               </svg>
             </button>
-            {accessType === 'direct' && (
-              <button
-                onClick={() => setShowChat(true)}
-                className="w-full text-teal-600 hover:text-teal-700 text-center mt-4"
-              >
-                Don't have an invoice? Create claim manually
-              </button>
-            )}
+            <button
+              onClick={() => setShowChat(true)}
+              className="w-full text-teal-600 hover:text-teal-700 text-center mt-4"
+            >
+              Don't have an invoice? Create claim manually
+            </button>
           </div>
 
           <div className="bg-white rounded-lg shadow-lg p-6">

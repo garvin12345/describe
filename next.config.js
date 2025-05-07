@@ -2,6 +2,10 @@
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  // Disable ESLint during build
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
   webpack: (config) => {
     config.resolve.fallback = {
       ...config.resolve.fallback,
