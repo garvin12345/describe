@@ -15,9 +15,7 @@ const nextConfig = {
     minimumCacheTTL: 60,
   },
   // Production optimizations
-  swcMinify: true,
   reactStrictMode: true,
-  // Compression
   compress: true,
 };
 
