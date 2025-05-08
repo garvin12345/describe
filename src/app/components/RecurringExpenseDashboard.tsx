@@ -1,5 +1,3 @@
-'use client';
-
 import { useState, useRef, useEffect } from 'react';
 import Chat from './Chat';
 import InvoiceConfirmation from './InvoiceConfirmation';
@@ -7,14 +5,14 @@ import CalculationInProgress from './CalculationInProgress';
 import Image from 'next/image';
 import EditableInvoiceTable from './EditableInvoiceTable';
 
-interface ClaimStartProps {
+interface RecurringExpenseDashboardProps {
   accessType?: string;
   onBack?: () => void;
   onRestart?: () => void;
   onShowOtherOptions?: () => void;
 }
 
-export default function ClaimStart({ accessType = 'default', onBack, onRestart, onShowOtherOptions }: ClaimStartProps) {
+export default function RecurringExpenseDashboard({ accessType = 'default', onBack, onRestart, onShowOtherOptions }: RecurringExpenseDashboardProps) {
   const [showChat, setShowChat] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -25,7 +23,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [confirmedCPTCode, setConfirmedCPTCode] = useState('');
 
-  // Update careType when accessType changes
   useEffect(() => {
     if (accessType === 'pharmacy') {
       setCareType('pharmacy');
@@ -47,90 +44,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
     // Handle saving the data
   };
 
-  const renderRequiredInfo = () => {
-    if (accessType === 'pharmacy') {
-      return (
-        <div className="bg-gray-50 rounded-lg p-6 mb-4">
-          <h3 className="font-medium mb-4 text-black text-sm">Example Prescription Receipt:</h3>
-          <div className="mb-4">
-            <img
-              src="https://i.imgur.com/vXCaXZj.png"
-              alt="Example CVS prescription receipt"
-              className="rounded-lg max-w-full h-auto mx-auto"
-            />
-          </div>
-          <div className="flex items-center gap-2 text-red-500 text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-            </svg>
-            Multiple invoices in a single photo
-          </div>
-        </div>
-      );
-    }
-
-    return (
-      <div className="bg-gray-50 rounded-lg p-6 mb-4">
-        <h3 className="font-medium mb-4 text-black text-sm">Provide the required info:</h3>
-        <ul className="space-y-2 mb-3 text-sm">
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Patient name
-          </li>
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Provider name or National Provider ID (NPI)
-          </li>
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Date(s) of service
-          </li>
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Procedure codes (CPT, HCPCS, ASC, APC or DRG) for the services
-          </li>
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Diagnosis codes (ICD-10) for the services
-          </li>
-          <li className="flex items-center gap-2 text-black">
-            <svg className="w-4 h-4 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd"/>
-            </svg>
-            Amount charged for each service
-          </li>
-        </ul>
-
-        <div className="mb-4">
-          <h3 className="font-medium mb-2 text-black text-sm">Do not upload:</h3>
-          <div className="flex items-center gap-2 text-red-500 text-sm">
-            <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-              <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"/>
-            </svg>
-            Multiple invoices in a single photo
-          </div>
-        </div>
-
-        <button className="text-teal-500 hover:text-teal-600 flex items-center gap-2 text-sm">
-          <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
-            <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"/>
-          </svg>
-          See example invoices
-        </button>
-      </div>
-    );
-  };
-
   if (showChat) {
     return <Chat onBack={() => setShowChat(false)} onRestart={onRestart} />;
   }
@@ -138,7 +51,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
   if (showCalculation) {
     return (
       <div className="container mx-auto px-4 min-h-screen py-4 bg-white">
-        <div className="w-[800px] mx-auto">
+        <div className="w-[1000px] mx-auto">
           <CalculationInProgress
             expenseNumber="141192"
             userName="Garvin Chen"
@@ -167,7 +80,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
   if (showConfirmation) {
     return (
       <div className="container mx-auto px-4 min-h-screen py-4 bg-white">
-        <div className="w-[800px] mx-auto">
+        <div className="w-[1000px] mx-auto">
           <InvoiceConfirmation 
             onConfirm={() => setShowCalculation(true)} 
             onEdit={() => setShowConfirmation(false)}
@@ -182,7 +95,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
   if (showInvoiceTable) {
     return (
       <div className="container mx-auto px-4 min-h-screen py-4 bg-white">
-        <div className="w-[800px] mx-auto">
+        <div className="w-[1000px] mx-auto">
           <div className="bg-white rounded-lg shadow-lg p-8">
             <h2 className="text-xl font-semibold mb-6 text-black">
               Enter Visit Information
@@ -212,6 +125,10 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
         {/* Main Content */}
         <div className="w-[1000px]">
           <div className="relative border rounded-lg shadow-lg p-6 min-h-[700px]">
+            {/* Recurring Claim Banner */}
+            <div className="bg-teal-500 text-white p-4 rounded-t-lg mb-6">
+              <h1 className="text-2xl font-bold">Recurring Claim</h1>
+            </div>
             {/* Back Button */}
             <button
               onClick={onBack}
@@ -253,8 +170,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
 
             <div className="mb-4">
               <h2 className="text-lg mb-4 text-black">Attach itemized invoices</h2>
-              
-              {/* Required Info Container */}
+              {/* Required Info Container (copied from ClaimStart) */}
               <div className="bg-gray-50 rounded-lg p-6 mb-4">
                 <h3 className="font-medium mb-4 text-black text-sm">Provide the required info:</h3>
                 <ul className="space-y-2 mb-3 text-sm">
@@ -295,7 +211,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
                     Amount charged for each service
                   </li>
                 </ul>
-
                 <div className="mb-4">
                   <h3 className="font-medium mb-2 text-black text-sm">Do not upload:</h3>
                   <div className="flex items-center gap-2 text-red-500 text-sm">
@@ -305,7 +220,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
                     Multiple invoices in a single photo
                   </div>
                 </div>
-
                 <button className="text-teal-500 hover:text-teal-600 flex items-center gap-2 text-sm">
                   <svg className="w-4 h-4" viewBox="0 0 20 20" fill="currentColor">
                     <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v2H7a1 1 0 100 2h2v2a1 1 0 102 0v-2h2a1 1 0 100-2h-2V7z" clipRule="evenodd"/>
@@ -313,7 +227,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
                   See example invoices
                 </button>
               </div>
-
               {/* File Upload Container */}
               <div className="bg-gray-50 rounded-lg p-6">
                 <input
@@ -346,7 +259,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
                 </div>
               </div>
             </div>
-
             {accessType !== 'pharmacy' && (
               <div className="flex justify-center">
                 <button
@@ -362,8 +274,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
             )}
           </div>
         </div>
-
-        {/* Right Panel */}
+        {/* Right Panel (copied from ClaimStart) */}
         <div className="w-[360px]">
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6">
             <button 
@@ -389,7 +300,6 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart, 
               </button>
             )}
           </div>
-
           <div className="bg-white rounded-lg shadow-lg p-6">
             <h2 className="text-lg font-medium text-black mb-4">Have questions?</h2>
             <div className="space-y-3">

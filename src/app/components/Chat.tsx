@@ -47,6 +47,15 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
+  // Force scroll to bottom after DOM updates
+  useEffect(() => {
+    if (messages.length > 0) {
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    }
+  }, [messages]);
+
   // Add effect to monitor state changes
   useEffect(() => {
     if (showInvoice && confirmedCPTEntries.length > 0) {
@@ -69,8 +78,6 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
     providerSpecialty: string;
     dateOfService: string;
     chargeAmount: string;
-    isFirstVisit: boolean | null;
-    visitDuration: string;
   }) => {
     setShowForm(false);
     setMemberDescription(formData.description);
@@ -85,14 +92,6 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
 
     if (formData.providerSpecialty) {
       messageParts.push(`I saw a ${formData.providerSpecialty} provider`);
-    }
-
-    if (formData.isFirstVisit !== null) {
-      messageParts.push(formData.isFirstVisit ? 'This was my first visit with this provider' : 'This was a follow-up visit');
-    }
-
-    if (formData.visitDuration) {
-      messageParts.push(`The visit lasted ${formData.visitDuration} minutes`);
     }
 
     const initialMessage = messageParts.join('. ') + '.';
@@ -246,7 +245,7 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
         {onBack && (
           <button
             onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 ml-4 mt-4"
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-2 ml-4 mt-0"
           >
             <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
@@ -260,70 +259,96 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 max-w-4xl">
-      {onBack && (
-        <button
-          onClick={onBack}
-          className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
-        >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-          </svg>
-          Back
-        </button>
-      )}
-      <div className="bg-white rounded-lg shadow-lg p-6">
-        <div className="mb-4 space-y-6 min-h-[600px] overflow-y-auto">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`flex ${
-                message.role === 'user' ? 'justify-end' : 'justify-start'
-              }`}
-            >
+    <div className="max-w-3xl mx-auto p-2 pt-0">
+      {/* Progress Indicator */}
+      <div className="flex items-center justify-center mb-4 pt-6">
+        {/* Step 1: Describe Visit (completed, check mark) */}
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-teal-500">
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="mt-2 text-sm font-medium text-teal-700">Describe Visit</span>
+        </div>
+        <div className="flex-1 h-0.5 bg-teal-500 mx-2" />
+        {/* Step 2: Add Details (active, same color as step 1) */}
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-white bg-teal-500">2</div>
+          <span className="mt-2 text-sm font-medium text-teal-700">Add Details</span>
+        </div>
+        <div className="flex-1 h-0.5 bg-gray-300 mx-2" />
+        {/* Step 3: Review & Submit (upcoming) */}
+        <div className="flex flex-col items-center">
+          <div className="w-8 h-8 rounded-full flex items-center justify-center font-bold text-gray-400 border-2 border-gray-300 bg-white">3</div>
+          <span className="mt-2 text-sm font-medium text-gray-400">Review & Submit</span>
+        </div>
+      </div>
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+        {onBack && (
+          <button
+            onClick={onBack}
+            className="flex items-center text-gray-600 hover:text-gray-900 mb-6"
+          >
+            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+            Back
+          </button>
+        )}
+        <div className="bg-white rounded-lg shadow-lg p-6">
+          <div className="mb-4 space-y-6 h-[500px] overflow-y-auto p-4" style={{ scrollBehavior: 'smooth' }}>
+            {messages.map((message, index) => (
               <div
-                className={`max-w-[85%] rounded-lg p-6 whitespace-pre-wrap ${
-                  message.role === 'user'
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                key={index}
+                className={`flex ${
+                  message.role === 'user' ? 'justify-end' : 'justify-start'
                 }`}
               >
-                {message.content.replace(/=+/g, '').trim()}
+                <div
+                  className={`max-w-[85%] rounded-lg p-6 whitespace-pre-wrap ${
+                    message.role === 'user'
+                      ? 'bg-blue-500 text-white'
+                      : 'bg-gray-100 text-gray-800'
+                  }`}
+                >
+                  {message.content.replace(/=+/g, '').trim()}
+                </div>
               </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-gray-100 rounded-lg p-6 text-gray-800">
-                Typing...
+            ))}
+            {isLoading && (
+              <div className="flex justify-start">
+                <div className="bg-gray-100 rounded-lg p-6 text-gray-800">
+                  Typing...
+                </div>
               </div>
-            </div>
-          )}
-          {error && (
-            <div className="text-red-500 text-center p-4">{error}</div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        <form onSubmit={handleSubmit} className="mt-6">
-          <div className="flex gap-4">
-            <input
-              type="text"
-              value={userInput}
-              onChange={(e) => setUserInput(e.target.value)}
-              placeholder="Type your message..."
-              className="flex-1 p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              disabled={isLoading}
-            />
-            <button
-              type="submit"
-              disabled={!userInput.trim() || isLoading}
-              className="px-6 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-            >
-              Send
-            </button>
+            )}
+            {error && (
+              <div className="text-red-500 text-center p-4">{error}</div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
-        </form>
+
+          <form onSubmit={handleSubmit} className="mt-6">
+            <div className="flex gap-4">
+              <input
+                type="text"
+                value={userInput}
+                onChange={(e) => setUserInput(e.target.value)}
+                placeholder="Type your message..."
+                className="flex-1 p-4 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                disabled={isLoading}
+              />
+              <button
+                type="submit"
+                disabled={!userInput.trim() || isLoading}
+                className="px-6 py-4 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
+              >
+                Send
+              </button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   );

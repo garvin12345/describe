@@ -94,11 +94,12 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
         firstChild.style.paddingTop = '0px';
       }
 
-      // Remove the "Generating PDF..." element from the clone
-      const loadingDiv = invoiceClone.querySelector('.text-gray-800');
-      if (loadingDiv && loadingDiv.textContent?.includes('Generating PDF')) {
-        loadingDiv.parentNode?.removeChild(loadingDiv);
-      }
+      // Remove any element containing 'Generating PDF...' text
+      invoiceClone.querySelectorAll('button').forEach(el => {
+        if (el.textContent && el.textContent.trim() === 'Generating PDF...') {
+          el.parentNode?.removeChild(el);
+        }
+      });
 
       // Set explicit colors for PDF generation
       const pdfStyles = document.createElement('style');
@@ -152,89 +153,117 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
   };
 
   return (
-    <div ref={invoiceRef} className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
+    <div ref={invoiceRef} className="container mx-auto px-4 py-4 max-w-3xl">
+      {/* Progress Indicator - balanced size */}
+      <div className="flex items-center justify-center mb-5 pt-2">
+        {/* Step 1: Describe Visit */}
+        <div className="flex flex-col items-center">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-white bg-teal-500">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="mt-1 text-xs font-medium text-teal-700">Describe Visit</span>
+        </div>
+        <div className="flex-1 h-0.5 bg-teal-500 mx-2" />
+        {/* Step 2 */}
+        <div className="flex flex-col items-center">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-white bg-teal-500">
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="3" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+          <span className="mt-1 text-xs font-medium text-teal-700">Add Details</span>
+        </div>
+        <div className="flex-1 h-0.5 bg-teal-500 mx-2" />
+        {/* Step 3 */}
+        <div className="flex flex-col items-center">
+          <div className="w-7 h-7 rounded-full flex items-center justify-center font-bold text-white bg-teal-500 border-2 border-teal-500">3</div>
+          <span className="mt-1 text-xs font-medium text-teal-700">Review & Submit</span>
+        </div>
+      </div>
+      
+      {/* Navigation buttons - more balanced size */}
+      <div className="flex justify-between items-center mb-4">
         <button
           onClick={handleReset}
-          className="flex items-center text-gray-600 hover:text-gray-900"
-          style={{ color: '#4B5563' }}
+          className="flex items-center text-gray-600 hover:text-gray-900 text-sm"
         >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
           Reset
         </button>
         <button
           onClick={handleReturnToDashboard}
-          className="flex items-center text-teal-600 hover:text-teal-700 font-medium"
-          style={{ color: '#0D9488' }}
+          className="flex items-center text-teal-600 hover:text-teal-700 font-medium text-sm"
         >
-          <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <svg className="w-4 h-4 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
           </svg>
           Return to Dashboard
         </button>
       </div>
-      <div className="rounded-lg shadow-lg p-6 max-w-3xl mx-auto bg-white">
-        <div className="mb-8">
-          <h2 className="text-2xl font-bold mb-2 text-black">Invoice Preview</h2>
-          <p className="text-gray-600">Review your generated invoice based on the information provided.</p>
-        </div>
-
-        <div className="flex items-center mb-6">
-          <div className="flex items-center">
-            <svg className="w-8 h-8 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <rect width="24" height="24" rx="4" fill="#1a237e"/>
-              <path d="M6 12h12M12 6v12" stroke="white" strokeWidth="2"/>
-            </svg>
-            <span className="text-xl text-black">sidecar health</span>
+      
+      <div className="rounded-lg shadow-lg p-5 max-w-3xl mx-auto bg-white">
+        {/* Header with logo and disclaimer */}
+        <div className="mb-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center">
+              <svg className="w-7 h-7 mr-2" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="24" height="24" rx="4" fill="#1a237e"/>
+                <path d="M6 12h12M12 6v12" stroke="white" strokeWidth="2"/>
+              </svg>
+              <span className="text-base text-black">sidecar health</span>
+            </div>
+            <p className="text-xs text-gray-600">
+              Member provided information
+            </p>
           </div>
         </div>
 
-        <p className="text-center mb-6 text-gray-600">
-          This invoice was generated from member provided information.
-        </p>
-
-        <div className="mb-8 text-black">
-          <p>Patient Name: Garvin Chen</p>
-          <p>DOB: 05/29/1980</p>
+        {/* Patient info */}
+        <div className="mb-4">
+          <div className="text-sm text-black">
+            <p className="inline-block mr-4">Patient: Garvin Chen</p>
+            <p className="inline-block">DOB: 05/29/1980</p>
+          </div>
         </div>
 
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-4 text-black">Services</h3>
+        <div className="mb-4">
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full text-sm">
               <thead>
                 <tr style={{ borderBottom: '1px solid #E5E7EB' }}>
-                  <th className="text-left py-2 px-4 text-black">Date</th>
-                  <th className="text-left py-2 px-4 text-black">CPT Code</th>
-                  <th className="text-left py-2 px-4 text-black">Description</th>
-                  <th className="text-right py-2 px-4 text-black">Amount</th>
+                  <th className="text-left py-2 px-3 text-black">Date</th>
+                  <th className="text-left py-2 px-3 text-black">CPT Code</th>
+                  <th className="text-left py-2 px-3 text-black">Description</th>
+                  <th className="text-right py-2 px-3 text-black">Amount</th>
                 </tr>
               </thead>
               <tbody>
                 {cptEntries.map((entry, index) => (
                   <tr key={index} style={{ borderBottom: '1px solid #E5E7EB' }}>
-                    <td className="py-2 px-4 text-black">{formattedDate}</td>
-                    <td className="py-2 px-4 text-black">{entry.code}</td>
-                    <td className="py-2 px-4 text-black">{entry.description}</td>
-                    <td className="text-right py-2 px-4 text-black">--</td>
+                    <td className="py-2 px-3 text-black">{formattedDate}</td>
+                    <td className="py-2 px-3 text-black">{entry.code}</td>
+                    <td className="py-2 px-3 text-black">{entry.description}</td>
+                    <td className="text-right py-2 px-3 text-black">--</td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </div>
-          <div className="text-right mt-4">
-            <p className="font-semibold text-black">Swipe Amount: $250</p>
+          <div className="text-right mt-2">
+            <p className="font-semibold text-black text-sm">Swipe Amount: $250</p>
           </div>
         </div>
 
-        <div className="mb-8">
-          <h3 className="text-xl font-semibold mb-2 text-black">Member-provided Description:</h3>
-          <p className="text-gray-600">{memberDescription}</p>
+        <div className="mb-4">
+          <h3 className="text-sm font-semibold mb-2 text-black">Member-provided Description:</h3>
+          <p className="text-sm text-gray-600">{memberDescription}</p>
         </div>
 
-        <div className="mb-8 flex items-start gap-2" data-download-section>
+        <div className="mb-5 flex items-start gap-3" data-download-section>
           <input
             type="checkbox"
             id="attestation"
@@ -243,15 +272,12 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
             className="mt-1"
             style={{ accentColor: '#000000' }}
           />
-          <label htmlFor="attestation" className="text-gray-600">
-            <p className="mb-4">
-              I confirm that the information I've provided is true and accurate, to the best of my
-              knowledge. I understand that submitting false or deceptive information may be considered insurance fraud.
+          <label htmlFor="attestation" className="text-sm text-gray-600">
+            <p className="mb-2">
+              I confirm that the information I've provided is true and accurate. I understand that submitting false information may be considered insurance fraud.
             </p>
             <p>
-              I also understand that by completing this form instead of submitting an itemized invoice from my provider, I
-              waive any earned benefit credit I would otherwise receive related to this expense should the calculated
-              benefit amount exceed the provider charge.
+              I also understand that by completing this form instead of submitting an itemized invoice, I waive any earned benefit credit.
             </p>
           </label>
         </div>
@@ -259,7 +285,7 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
         <div className="relative" data-download-section>
           <button 
             onClick={handleDownload}
-            className="px-6 py-2 rounded-lg flex items-center gap-2 w-full justify-center"
+            className="px-5 py-2 rounded-lg flex items-center gap-2 w-full justify-center text-sm"
             style={{ 
               backgroundColor: isAttested ? '#000000' : '#999999', 
               color: '#FFFFFF',
@@ -273,7 +299,7 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
             {isLoading ? 'Generating PDF...' : 'Download Invoice'}
           </button>
           {!isAttested && (
-            <div className="absolute -top-8 left-0 right-0 text-center text-sm text-red-500">
+            <div className="absolute -top-6 left-0 right-0 text-center text-xs text-red-500">
               Please check the attestation box above to enable download
             </div>
           )}

@@ -112,42 +112,75 @@ export default function Beginning({ onRestart, onBack }: BeginningProps) {
               </div>
               <div>
                 <label className="block font-medium mb-2">Where did your visit with the provider take place?</label>
-                <select
-                  className="w-full border rounded p-2 mb-4"
-                  value={location}
-                  onChange={e => setLocation(e.target.value)}
-                >
-                  <option value="">Select one</option>
-                  <option>Doctor's office</option>
-                  <option>Telehealth (video or phone)</option>
-                  <option>Clinic</option>
-                  <option>Urgent care</option>
-                  <option>Hospital</option>
-                </select>
+                <div className="mb-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      "Doctor's office",
+                      "Telehealth (video or phone)",
+                      "Clinic",
+                      "Urgent care",
+                      "Hospital"
+                    ].map(opt => (
+                      <label key={opt} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="location"
+                          value={opt}
+                          checked={location === opt}
+                          onChange={() => setLocation(opt)}
+                          className="form-radio text-teal-500"
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block font-medium mb-2">Do you have any other health insurance coverage?</label>
-                <select
-                  className="w-full border rounded p-2 mb-4"
-                  value={otherInsurance}
-                  onChange={e => setOtherInsurance(e.target.value)}
-                >
-                  <option value="">Select one</option>
-                  <option>No, this is my only coverage</option>
-                  <option>Yes</option>
-                </select>
+                <div className="mb-6">
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      "No, this is my only coverage",
+                      "Yes"
+                    ].map(opt => (
+                      <label key={opt} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="otherInsurance"
+                          value={opt}
+                          checked={otherInsurance === opt}
+                          onChange={() => setOtherInsurance(opt)}
+                          className="form-radio text-teal-500"
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
               <div>
                 <label className="block font-medium mb-2">Is this a down payment for the service?</label>
-                <select
-                  className="w-full border rounded p-2 mb-4"
-                  value={downPayment}
-                  onChange={e => setDownPayment(e.target.value)}
-                >
-                  <option value="">Select one</option>
-                  <option>No</option>
-                  <option>Yes</option>
-                </select>
+                <div className="mb-4">
+                  <div className="grid grid-cols-2 gap-2">
+                    {[
+                      "No",
+                      "Yes"
+                    ].map(opt => (
+                      <label key={opt} className="flex items-center gap-2">
+                        <input
+                          type="radio"
+                          name="downPayment"
+                          value={opt}
+                          checked={downPayment === opt}
+                          onChange={() => setDownPayment(opt)}
+                          className="form-radio text-teal-500"
+                        />
+                        <span>{opt}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
               </div>
               {disqualified ? (
                 <div className="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 rounded">
