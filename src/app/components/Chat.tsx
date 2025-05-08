@@ -9,6 +9,11 @@ interface Message {
   content: string;
 }
 
+interface CPTEntry {
+  code: string;
+  description: string;
+}
+
 // New function to format the message text
 const formatMessage = (text: string) => {
   return text
@@ -33,13 +38,25 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showInvoice, setShowInvoice] = useState(false);
-  const [confirmedCPTCode, setConfirmedCPTCode] = useState('');
+  const [confirmedCPTEntries, setConfirmedCPTEntries] = useState<CPTEntry[]>([]);
   const [memberDescription, setMemberDescription] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Add effect to scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
+
+  // Add effect to monitor state changes
+  useEffect(() => {
+    if (showInvoice && confirmedCPTEntries.length > 0) {
+      console.log('State updated - should show invoice:', {
+        showInvoice,
+        confirmedCPTEntries,
+        memberDescription
+      });
+    }
+  }, [showInvoice, confirmedCPTEntries, memberDescription]);
 
   const handleFormSubmit = (formData: {
     description: string;
@@ -84,26 +101,54 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
 
   const handleConfirmation = (userResponse: string) => {
     if (userResponse.toLowerCase().includes('yes')) {
-      const cptMessage = [...messages].reverse().find(msg => 
+      // Get all messages from the model that contain CPT codes
+      const cptMessages = messages.filter(msg => 
         msg.role === 'model' && msg.content.includes('CPT code')
       );
 
-      if (cptMessage) {
-        const cptMatch = cptMessage.content.match(/(?:CPT code )?(\d{5})/);
+      if (cptMessages.length > 0) {
+        // Collect all CPT codes from all relevant messages
+        const allEntries: CPTEntry[] = [];
         
-        if (cptMatch) {
-          const cptCode = cptMatch[1];
-          setConfirmedCPTCode(cptCode);
+        cptMessages.forEach(message => {
+          const cptMatches = [...message.content.matchAll(/CPT code (\d{5})(?:\s*[-:(\s]\s*)(.*?)(?=(?:\.|$|\n|CPT code|\sand\s|,))/g)];
+          
+          cptMatches.forEach(match => {
+            const code = match[1];
+            const description = match[2].replace(/[()]/g, '').trim();
+            
+            // Only add if this code hasn't been added yet
+            if (!allEntries.some(entry => entry.code === code)) {
+              allEntries.push({ code, description });
+            }
+          });
+        });
+
+        if (allEntries.length > 0) {
+          // Update both states together
+          setConfirmedCPTEntries(allEntries);
           setShowInvoice(true);
+          return true;
         }
       }
     }
+    return false;
   };
 
   const sendMessage = async (content: string) => {
     try {
       setIsLoading(true);
       setError(null);
+
+      // Check for confirmation first
+      if (content.toLowerCase().includes('yes')) {
+        const wasConfirmed = handleConfirmation(content);
+        if (wasConfirmed) {
+          setIsLoading(false);
+          return;
+        }
+      }
+
       const newMessage: Message = { role: 'user', content };
       setMessages(prev => [...prev, newMessage]);
       
@@ -126,8 +171,28 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
         throw new Error(data.details || data.error || 'Failed to get response');
       }
 
+      // Add the AI's response to messages
       setMessages(prev => [...prev, { role: 'model', content: data.message }]);
-      handleConfirmation(content);
+
+      // Only route to invoice if the AI's message contains the creation phrase
+      if (data.message.toLowerCase().includes('creating invoice with cpt code')) {
+        // Find the part after "Creating invoice with CPT code(s):"
+        const cptSection = data.message.split(/creating invoice with cpt code\(s\):/i)[1];
+        if (cptSection) {
+          // Match all lines of the form [CODE] - [DESCRIPTION]
+          const matches = [...cptSection.matchAll(/(\d{5})\s*-\s*(.+)/g)];
+          if (matches.length > 0) {
+            const allEntries = matches.map(match => ({
+              code: match[1],
+              description: match[2].trim()
+            }));
+            setConfirmedCPTEntries(allEntries);
+            setShowInvoice(true);
+            return;
+          }
+        }
+      }
+
     } catch (error) {
       console.error('Error:', error);
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
@@ -146,26 +211,30 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
     await sendMessage(message);
   };
 
-  if (showInvoice) {
+  // Handle reset - returns to medical visit form
+  const handleReset = () => {
+    setShowInvoice(false);
+    setShowForm(true);
+    setMessages([]);
+    setConfirmedCPTEntries([]);
+    setMemberDescription('');
+  };
+
+  // Handle restart - returns to expense dashboard
+  const handleRestart = () => {
+    if (onRestart) {
+      onRestart();
+    }
+  };
+
+  if (showInvoice && confirmedCPTEntries.length > 0) {
     return (
       <div className="bg-white">
-        {onBack && (
-          <button
-            onClick={onBack}
-            className="flex items-center text-gray-600 hover:text-gray-900 mb-6 ml-4 mt-4"
-          >
-            <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
-            </svg>
-            Back
-          </button>
-        )}
         <Invoice 
-          cptCode={confirmedCPTCode}
-          cptDescription={confirmedCPTCode === '99213' ? 'Provider Fee for the Therapy Session' : 'Provider Fee for the Therapy Session'}
+          cptEntries={confirmedCPTEntries}
           memberDescription={memberDescription}
-          onReset={onBack}
-          onRestart={onRestart}
+          onReset={handleReset}
+          onRestart={handleRestart}
         />
       </div>
     );
@@ -219,7 +288,7 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
                     : 'bg-gray-100 text-gray-800'
                 }`}
               >
-                {message.content}
+                {message.content.replace(/=+/g, '').trim()}
               </div>
             </div>
           ))}

@@ -39,7 +39,10 @@ export default function Recurring({ onRestart }: RecurringProps) {
   const [selectedDate, setSelectedDate] = useState('');
 
   if (showBeginning) {
-    return <Beginning onRestart={onRestart} />;
+    return <Beginning 
+      onRestart={onRestart} 
+      onBack={() => setShowBeginning(false)}
+    />;
   }
 
   if (showCalculation) {

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Recurring from './Recurring';
 import Beginning from './Beginning';
 import ClaimStart from './ClaimStart';
+import Invoice from './Invoice';
 
 interface Expense {
   id: string;
@@ -57,36 +58,76 @@ export default function ExpenseDashboard() {
   const [showRecurring, setShowRecurring] = useState(false);
   const [showBeginning, setShowBeginning] = useState(false);
   const [showClaimStart, setShowClaimStart] = useState(false);
+  const [showInvoice, setShowInvoice] = useState(false);
   const [claimStartType, setClaimStartType] = useState<'expense' | 'pharmacy'>('expense');
 
-  if (showRecurring) {
-    return <Recurring onRestart={() => {
-      setShowRecurring(false);
-      setShowClaimStart(false);
-      setShowBeginning(false);
+  const handleExpenseClick = (expense: Expense) => {
+    if (expense.title === 'Swipe - Recurring Expense') {
+      setShowRecurring(true);
+    } else if (expense.title === 'Swipe medical Expense (other options to create invoice)') {
+      setShowBeginning(true);
+    } else if (expense.title === 'Pharmacy Expense') {
+      setClaimStartType('pharmacy');
+      setShowClaimStart(true);
+    } else if (expense.title === 'Non-swipe Expense') {
       setClaimStartType('expense');
-    }} />;
+      setShowClaimStart(true);
+    }
+  };
+
+  const handleAmountClick = (expense: Expense) => {
+    if (
+      expense.title === 'Swipe medical Expense (other options to create invoice)' ||
+      expense.title === 'Pharmacy Expense'
+    ) {
+      setShowInvoice(true);
+    }
+  };
+
+  const handleRestart = () => {
+    setShowRecurring(false);
+    setShowClaimStart(false);
+    setShowBeginning(false);
+    setShowInvoice(false);
+    setClaimStartType('expense');
+  };
+
+  if (showInvoice) {
+    return (
+      <div className="bg-white">
+        <Invoice 
+          cptEntries={[
+            { code: '99213', description: 'Provider Fee for the Therapy Session' }
+          ]}
+          memberDescription="Medical visit with provider"
+          onReset={() => setShowInvoice(false)}
+          onRestart={handleRestart}
+        />
+      </div>
+    );
+  }
+
+  if (showRecurring) {
+    return <Recurring onRestart={handleRestart} />;
   }
 
   if (showBeginning) {
-    return <Beginning onRestart={() => {
-      setShowRecurring(false);
-      setShowClaimStart(false);
-      setShowBeginning(false);
-      setClaimStartType('expense');
-    }} />;
-  }
-
-  if (showClaimStart) {
-    return <ClaimStart 
-      accessType={claimStartType} 
-      onBack={() => setShowClaimStart(false)}
+    return <Beginning 
+      onBack={() => setShowBeginning(false)}
       onRestart={() => {
         setShowRecurring(false);
         setShowClaimStart(false);
         setShowBeginning(false);
         setClaimStartType('expense');
       }} 
+    />;
+  }
+
+  if (showClaimStart) {
+    return <ClaimStart 
+      accessType={claimStartType} 
+      onBack={() => setShowClaimStart(false)}
+      onRestart={handleRestart}
     />;
   }
 
@@ -113,22 +154,9 @@ export default function ExpenseDashboard() {
               {EXPENSES.map((expense, index) => (
                 <tr 
                   key={expense.id}
-                  onClick={() => {
-                    if (index === 0) {
-                      setShowRecurring(true);
-                    } else if (expense.title === 'Swipe medical Expense (other options to create invoice)') {
-                      setShowBeginning(true);
-                    } else if (expense.title === 'Pharmacy Expense') {
-                      setClaimStartType('pharmacy');
-                      setShowClaimStart(true);
-                    } else if (expense.title === 'Non-swipe Expense') {
-                      setClaimStartType('expense');
-                      setShowClaimStart(true);
-                    }
-                  }}
                   className={`border-t border-gray-200 ${(index === 0 || expense.title === 'Swipe medical Expense (other options to create invoice)' || expense.title === 'Pharmacy Expense' || expense.title === 'Non-swipe Expense') ? 'cursor-pointer hover:bg-gray-50' : ''}`}
                 >
-                  <td className="py-4">
+                  <td className="py-4" onClick={() => handleExpenseClick(expense)}>
                     <div className="font-medium text-[#2196f3] hover:text-[#1976d2]">
                       {expense.title}
                     </div>
@@ -142,7 +170,12 @@ export default function ExpenseDashboard() {
                       {expense.status}
                     </span>
                   </td>
-                  <td className="py-4 text-right">{expense.totalBill}</td>
+                  <td 
+                    className={`py-4 text-right ${expense.title === 'Swipe medical Expense (other options to create invoice)' ? 'cursor-pointer text-[#2196f3] hover:text-[#1976d2] hover:underline' : ''}`}
+                    onClick={() => handleAmountClick(expense)}
+                  >
+                    {expense.totalBill}
+                  </td>
                   <td className="py-4 text-right">{expense.planPays}</td>
                   <td className="py-4 text-right">{expense.yourPortion}</td>
                   <td className="py-4 text-right">{expense.youOwe}</td>

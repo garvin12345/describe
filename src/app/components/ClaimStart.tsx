@@ -11,9 +11,10 @@ interface ClaimStartProps {
   accessType?: string;
   onBack?: () => void;
   onRestart?: () => void;
+  onShowOtherOptions?: () => void;
 }
 
-export default function ClaimStart({ accessType = 'default', onBack, onRestart }: ClaimStartProps) {
+export default function ClaimStart({ accessType = 'default', onBack, onRestart, onShowOtherOptions }: ClaimStartProps) {
   const [showChat, setShowChat] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
@@ -349,7 +350,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart }
             {accessType !== 'pharmacy' && (
               <div className="flex justify-center">
                 <button
-                  onClick={() => setShowInvoiceTable(true)}
+                  onClick={onShowOtherOptions}
                   className="bg-gray-200 text-black px-6 py-2 rounded-lg hover:bg-gray-300 flex items-center justify-center gap-2"
                 >
                   Or create claim without invoice
@@ -381,7 +382,7 @@ export default function ClaimStart({ accessType = 'default', onBack, onRestart }
             </button>
             {accessType !== 'pharmacy' && (
               <button
-                onClick={() => setShowInvoiceTable(true)}
+                onClick={onShowOtherOptions}
                 className="w-full text-teal-600 hover:text-teal-700 text-center mt-4"
               >
                 Don't have an invoice? Create claim manually
