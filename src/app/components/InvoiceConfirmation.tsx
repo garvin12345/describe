@@ -85,16 +85,25 @@ export default function InvoiceConfirmation({ onConfirm, onEdit, onBack, isPharm
       <div className="mb-8 overflow-hidden rounded-lg border border-gray-200">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gray-200">
-              <th colSpan={4} className="px-6 py-4 text-left bg-white">
-                <div className="text-lg font-medium text-gray-900 mb-2">Provider Info</div>
-                <div className="text-sm text-gray-600">
-                  <div>{providerName}</div>
-                  <div>NPI 123456789</div>
-                  <div>Mental Health</div>
-                </div>
-              </th>
-            </tr>
+            {/* Show CVS Pharmacy as header for pharmacy, Provider Info for non-pharmacy */}
+            {isPharmacy ? (
+              <tr>
+                <th colSpan={4} className="px-6 py-4 text-left bg-white">
+                  <div className="text-lg font-medium text-gray-900 mb-2">CVS Pharmacy</div>
+                </th>
+              </tr>
+            ) : (
+              <tr className="border-b border-gray-200">
+                <th colSpan={4} className="px-6 py-4 text-left bg-white">
+                  <div className="text-lg font-medium text-gray-900 mb-2">Provider Info</div>
+                  <div className="text-sm text-gray-600">
+                    <div>{providerName}</div>
+                    <div>NPI 123456789</div>
+                    <div>Mental Health</div>
+                  </div>
+                </th>
+              </tr>
+            )}
             <tr className="bg-gray-50">
               <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">Date of Service</th>
               <th className="px-6 py-4 text-left text-sm font-medium text-gray-500">{isPharmacy ? 'Drug Name' : 'Service'}</th>
@@ -138,10 +147,10 @@ export default function InvoiceConfirmation({ onConfirm, onEdit, onBack, isPharm
           Yes, this is correct. Please Submit
         </button>
         <button
-          onClick={onUpload}
+          onClick={isPharmacy ? () => setIsEditing(true) : onUpload}
           className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 font-medium"
         >
-          Different treatment, I'd like to upload instead
+          {isPharmacy ? "I'd like to make changes" : "Different treatment, I'd like to upload instead"}
         </button>
       </div>
     </div>
