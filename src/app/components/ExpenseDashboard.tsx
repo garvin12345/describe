@@ -5,6 +5,7 @@ import Recurring from './Recurring';
 import Beginning from './Beginning';
 import ClaimStart from './ClaimStart';
 import Invoice from './Invoice';
+import VisionPage2 from './VisionPage2';
 
 interface Expense {
   id: string;
@@ -51,6 +52,17 @@ const EXPENSES: Expense[] = [
     planPays: '$0.00',
     yourPortion: '$640.00',
     youOwe: '$0.00'
+  },
+  {
+    id: '4',
+    expenseNumber: '515121',
+    title: 'New Expense Flow',
+    date: 'Mar 5, 2025',
+    status: 'NEW',
+    totalBill: '$200.00',
+    planPays: '$0.00',
+    yourPortion: '$200.00',
+    youOwe: '$0.00'
   }
 ];
 
@@ -59,26 +71,32 @@ export default function ExpenseDashboard() {
   const [showBeginning, setShowBeginning] = useState(false);
   const [showClaimStart, setShowClaimStart] = useState(false);
   const [showInvoice, setShowInvoice] = useState(false);
+  const [showVisionPage2, setShowVisionPage2] = useState(false);
   const [claimStartType, setClaimStartType] = useState<'expense' | 'pharmacy'>('expense');
+  const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [hideNonVision, setHideNonVision] = useState(true);
 
   const handleExpenseClick = (expense: Expense) => {
-    if (expense.title === 'Swipe - Recurring Expense') {
+    if (expense.title === 'New Expense Flow') {
+      setShowVisionPage2(true);
+    } else if (expense.title === 'Swipe - Recurring Expense') {
       setShowRecurring(true);
-    } else if (expense.title === 'Swipe medical Expense (other options to create invoice)') {
-      setShowBeginning(true);
-    } else if (expense.title === 'Pharmacy Expense') {
+    } else if (expense.title === 'Swipe medical Expense (other options to create invoice)' || expense.title === 'Pharmacy Expense') {
       setClaimStartType('pharmacy');
       setShowClaimStart(true);
     } else if (expense.title === 'Non-swipe Expense') {
       setClaimStartType('expense');
       setShowClaimStart(true);
+    } else {
+      setShowBeginning(true);
     }
   };
 
   const handleAmountClick = (expense: Expense) => {
     if (
       expense.title === 'Swipe medical Expense (other options to create invoice)' ||
-      expense.title === 'Pharmacy Expense'
+      expense.title === 'Pharmacy Expense' ||
+      expense.title === 'New Expense Flow'
     ) {
       setShowInvoice(true);
     }
@@ -89,6 +107,7 @@ export default function ExpenseDashboard() {
     setShowClaimStart(false);
     setShowBeginning(false);
     setShowInvoice(false);
+    setShowVisionPage2(false);
     setClaimStartType('expense');
   };
 
@@ -119,7 +138,9 @@ export default function ExpenseDashboard() {
         setShowClaimStart(false);
         setShowBeginning(false);
         setClaimStartType('expense');
-      }} 
+        setSelectedExpense(null);
+      }}
+      isVisionV1={selectedExpense?.title === 'New Expense Flow'}
     />;
   }
 
@@ -131,11 +152,25 @@ export default function ExpenseDashboard() {
     />;
   }
 
+  if (showVisionPage2) {
+    return <VisionPage2 onBack={() => setShowVisionPage2(false)} onRestart={() => {
+      setShowVisionPage2(false);
+      setSelectedExpense(null);
+    }} />;
+  }
+
   return (
     <div className="min-h-screen bg-white">
       <div className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-[#1a237e] mb-8">Expenses</h1>
-
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="text-4xl font-bold text-[#1a237e]">Expenses</h1>
+          <button
+            className={`px-4 py-2 rounded-lg font-medium text-xs transition-colors border ${hideNonVision ? 'bg-teal-600 text-white border-teal-600' : 'bg-gray-100 text-gray-700 border-gray-300'}`}
+            onClick={() => setHideNonVision((v) => !v)}
+          >
+            {hideNonVision ? 'Show All' : 'Hide'}
+          </button>
+        </div>
         {/* Expenses Table */}
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -151,7 +186,7 @@ export default function ExpenseDashboard() {
               </tr>
             </thead>
             <tbody>
-              {EXPENSES.map((expense, index) => (
+              {(hideNonVision ? EXPENSES.filter(e => e.title === 'New Expense Flow') : EXPENSES).map((expense, index) => (
                 <tr 
                   key={expense.id}
                   className={`border-t border-gray-200 ${(index === 0 || expense.title === 'Swipe medical Expense (other options to create invoice)' || expense.title === 'Pharmacy Expense' || expense.title === 'Non-swipe Expense') ? 'cursor-pointer hover:bg-gray-50' : ''}`}

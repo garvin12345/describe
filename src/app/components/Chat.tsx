@@ -42,6 +42,21 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
   const [memberDescription, setMemberDescription] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Add state for form data
+  const [formData, setFormData] = useState<{
+    dateOfService: string;
+    providerName: string;
+    providerSpecialty: string;
+    locationType: string;
+    reasonForNoInvoice: string;
+  }>({
+    dateOfService: '',
+    providerName: '',
+    providerSpecialty: '',
+    locationType: '',
+    reasonForNoInvoice: ''
+  });
+
   // Add effect to scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -96,6 +111,15 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
 
     const initialMessage = messageParts.join('. ') + '.';
     sendMessage(initialMessage);
+
+    // Store the additional form data for the invoice
+    setFormData({
+      dateOfService: formData.dateOfService,
+      providerName: formData.providerName,
+      providerSpecialty: formData.providerSpecialty,
+      locationType: formData.locationType,
+      reasonForNoInvoice: formData.reasonForNoInvoice
+    });
   };
 
   const handleConfirmation = (userResponse: string) => {
@@ -229,11 +253,19 @@ export default function Chat({ onBack, onRestart }: ChatProps) {
   if (showInvoice && confirmedCPTEntries.length > 0) {
     return (
       <div className="bg-white">
-        <Invoice 
+        <Invoice
           cptEntries={confirmedCPTEntries}
           memberDescription={memberDescription}
-          onReset={handleReset}
+          onReset={() => {
+            setShowInvoice(false);
+            setShowForm(true);
+          }}
           onRestart={handleRestart}
+          dateOfService={formData.dateOfService}
+          providerName={formData.providerName}
+          providerSpecialty={formData.providerSpecialty}
+          locationType={formData.locationType}
+          reasonForNoInvoice={formData.reasonForNoInvoice}
         />
       </div>
     );

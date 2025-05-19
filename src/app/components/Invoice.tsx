@@ -12,14 +12,29 @@ interface InvoiceProps {
   memberDescription: string;
   onReset?: () => void;
   onRestart?: () => void;
+  dateOfService?: string;
+  providerName?: string;
+  providerSpecialty?: string;
+  locationType?: string;
+  reasonForNoInvoice?: string;
 }
 
-export default function Invoice({ cptEntries, memberDescription, onReset, onRestart }: InvoiceProps) {
+export default function Invoice({ 
+  cptEntries, 
+  memberDescription, 
+  onReset, 
+  onRestart,
+  dateOfService,
+  providerName,
+  providerSpecialty,
+  locationType,
+  reasonForNoInvoice 
+}: InvoiceProps) {
   const invoiceRef = useRef<HTMLDivElement>(null);
   const [isAttested, setIsAttested] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const currentDate = new Date();
-  const formattedDate = currentDate.toLocaleDateString('en-US', {
+  const formattedDate = dateOfService || currentDate.toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric'
@@ -47,6 +62,11 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
 
     if (!invoiceRef.current) {
       console.error('Invoice ref is null');
+      return;
+    }
+
+    // Prevent multiple downloads
+    if (isLoading) {
       return;
     }
 
@@ -104,27 +124,70 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
       // Set explicit colors for PDF generation
       const pdfStyles = document.createElement('style');
       pdfStyles.textContent = `
+        /* Reset all styles first */
         * {
-          color: rgb(0, 0, 0) !important;
-          background-color: rgb(255, 255, 255) !important;
+          color: #000000 !important;
+          background-color: #FFFFFF !important;
+          border-color: #E5E7EB !important;
         }
-        .text-gray-600 {
-          color: rgb(75, 85, 99) !important;
-        }
-        .text-teal-600 {
-          color: rgb(13, 148, 136) !important;
-        }
-        .bg-blue-100 {
-          background-color: rgb(219, 234, 254) !important;
-        }
-        .text-blue-800 {
-          color: rgb(30, 64, 175) !important;
-        }
-        .text-red-500 {
-          color: rgb(239, 68, 68) !important;
-        }
+
+        /* Basic text colors */
+        .text-black { color: #000000 !important; }
+        .text-gray { color: #4B5563 !important; }
+        .text-teal { color: #0D9488 !important; }
+        .text-red { color: #EF4444 !important; }
+        .text-white { color: #FFFFFF !important; }
+
+        /* Background colors */
+        .bg-white { background-color: #FFFFFF !important; }
+        .bg-gray { background-color: #F9FAFB !important; }
+        .bg-teal { background-color: #14B8A6 !important; }
+
+        /* Borders */
+        .border { border: 1px solid #E5E7EB !important; }
+        .border-b { border-bottom: 1px solid #E5E7EB !important; }
+        .border-t { border-top: 1px solid #E5E7EB !important; }
+
+        /* Table styles */
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 0.5rem; text-align: left; }
+        th { background-color: #F9FAFB !important; }
+        tr { border-bottom: 1px solid #E5E7EB !important; }
+
+        /* Layout */
+        .container { width: 100%; max-width: 48rem; margin: 0 auto; padding: 1rem; }
+        .flex { display: flex !important; }
+        .items-center { align-items: center !important; }
+        .justify-between { justify-content: space-between !important; }
+        .gap-2 { gap: 0.5rem !important; }
+        .mb-4 { margin-bottom: 1rem !important; }
+        .mb-6 { margin-bottom: 1.5rem !important; }
+        .p-5 { padding: 1.25rem !important; }
+        .rounded-lg { border-radius: 0.5rem !important; }
+        .shadow-lg { box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1) !important; }
+
+        /* Typography */
+        .text-sm { font-size: 0.875rem !important; }
+        .text-base { font-size: 1rem !important; }
+        .text-xs { font-size: 0.75rem !important; }
+        .font-medium { font-weight: 500 !important; }
+        .font-semibold { font-weight: 600 !important; }
+        .font-bold { font-weight: 700 !important; }
+
+        /* Remove any modern color functions */
+        [style*="oklch"] { color: #000000 !important; }
+        [style*="rgb"] { color: #000000 !important; }
+        [style*="hsl"] { color: #000000 !important; }
       `;
       invoiceClone.appendChild(pdfStyles);
+
+      // Remove any inline styles that might contain modern color functions
+      invoiceClone.querySelectorAll('[style]').forEach(el => {
+        const style = el.getAttribute('style');
+        if (style && (style.includes('oklch') || style.includes('rgb') || style.includes('hsl'))) {
+          el.removeAttribute('style');
+        }
+      });
 
       const opt = {
         margin: 1,
@@ -134,7 +197,9 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
           scale: 2,
           useCORS: true,
           logging: true,
-          backgroundColor: '#ffffff'
+          backgroundColor: '#FFFFFF',
+          windowWidth: invoiceClone.scrollWidth,
+          windowHeight: invoiceClone.scrollHeight
         },
         jsPDF: { 
           unit: 'in', 
@@ -143,7 +208,15 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
         }
       };
 
-      await html2pdf().from(invoiceClone).set(opt).save();
+      // Create a new instance of html2pdf
+      const pdf = html2pdf();
+      
+      // Set the options
+      pdf.set(opt);
+      
+      // Generate and save the PDF
+      await pdf.from(invoiceClone).save();
+      
     } catch (error) {
       console.error('Error generating PDF:', error);
       alert('Failed to generate PDF. Please try again.');
@@ -222,6 +295,18 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
           </div>
         </div>
 
+        {/* Provider Info */}
+        {(providerName || providerSpecialty || locationType) && (
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold mb-2 text-black">Provider Information:</h3>
+            <div className="text-sm text-gray-600">
+              {providerName && <p>Provider: {providerName}</p>}
+              {providerSpecialty && <p>Specialty: {providerSpecialty}</p>}
+              {locationType && <p>Location Type: {locationType}</p>}
+            </div>
+          </div>
+        )}
+
         {/* Patient info */}
         <div className="mb-4">
           <div className="text-sm text-black">
@@ -263,6 +348,13 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
           <p className="text-sm text-gray-600">{memberDescription}</p>
         </div>
 
+        {reasonForNoInvoice && (
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold mb-2 text-black">Reason for No Invoice:</h3>
+            <p className="text-sm text-gray-600">{reasonForNoInvoice}</p>
+          </div>
+        )}
+
         <div className="mb-5 flex items-start gap-3" data-download-section>
           <input
             type="checkbox"
@@ -289,7 +381,7 @@ export default function Invoice({ cptEntries, memberDescription, onReset, onRest
             style={{ 
               backgroundColor: isAttested ? '#000000' : '#999999', 
               color: '#FFFFFF',
-              cursor: isAttested ? 'pointer' : 'not-allowed'
+              cursor: isAttested && !isLoading ? 'pointer' : 'not-allowed'
             }}
             disabled={!isAttested || isLoading}
           >
