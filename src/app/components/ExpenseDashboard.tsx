@@ -74,7 +74,7 @@ export default function ExpenseDashboard() {
   const [showVisionPage2, setShowVisionPage2] = useState(false);
   const [claimStartType, setClaimStartType] = useState<'expense' | 'pharmacy'>('expense');
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
-  const [hideNonVision, setHideNonVision] = useState(true);
+  const [hideNonVision, setHideNonVision] = useState(false);
 
   const handleExpenseClick = (expense: Expense) => {
     if (expense.title === 'New Expense Flow') {
